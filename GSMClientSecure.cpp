@@ -85,20 +85,12 @@ int GSMClientSecure::write(const uint8_t *buf, size_t size)
         return -1;
     }
 
-    if (!this->sslclient->client) {
-        return -1;
-    }
-
     int ret_size = gsm_send_ssl_data(this->sslclient, buf, size);
     return ret_size < 0 ? MAX_WRITE_ERROR_CODE : ret_size;
 }
 
 int GSMClientSecure::available() {
     if (!this->sslclient) {
-        return 0;
-    }
-
-    if (!this->sslclient->client) {
         return 0;
     }
 
@@ -124,10 +116,6 @@ int GSMClientSecure::read() {
 
 int GSMClientSecure::read(uint8_t *buf, size_t size) {
     if (!this->sslclient) {
-        return -1;
-    }
-
-    if (!this->sslclient->client) {
         return -1;
     }
 
@@ -157,11 +145,7 @@ bool GSMClientSecure::connected()
 		return 0;
 	}
 
-	if (!this->sslclient->client) {
-		return 0;
-	}
-
-	return this->sslclient->client->connected();
+        return this->sslclient->client.connected();
 }
 
 GSMClientSecure::operator bool()
@@ -175,14 +159,10 @@ void GSMClientSecure::stop()
 		return;
 	}
 
-	if(!this->sslclient->client) {
-		return;
-	}
-
-	gsm_stop_ssl_socket(this->sslclient);
+        gsm_stop_ssl_socket(this->sslclient);
 }
 
 GSMClientSecure::~GSMClientSecure() {
     this->stop();
-    free(sslclient);
+    delete sslclient;
 }

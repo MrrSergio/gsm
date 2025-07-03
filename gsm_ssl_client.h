@@ -19,7 +19,7 @@
 #include "GSMClient.h"
 
 typedef struct gsm_sslclient_context {
-    GSMClient *client = NULL;
+    GSMClient client;               // TCP client used for TLS connection
     mbedtls_ssl_context ssl_ctx;
     mbedtls_ssl_config ssl_conf;
 
