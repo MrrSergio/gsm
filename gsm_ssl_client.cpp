@@ -169,10 +169,8 @@ int gsm_start_ssl_client(gsm_sslclient_context *ssl_client, const char *host, ui
     }
 
     DBG_PRINT_V("Starting socket");
-    if (ssl_client->client == NULL) {
-        ssl_client->client = new GSMClient();
-    }
-    if (!ssl_client->client->connect(host, port, timeout)) {
+
+    if (ssl_client->client.connect(host, port, timeout) != 1) {
         DBG_PRINT_E("Connect fail");
         return -1;
     }
@@ -250,8 +248,8 @@ int gsm_start_ssl_client(gsm_sslclient_context *ssl_client, const char *host, ui
         return handle_error(ret);
     }
 
-    mbedtls_ssl_set_bio(&ssl_client->ssl_ctx, ssl_client->client, gsm_mbedtls_net_send, NULL, gsm_mbedtls_net_recv_timeout);
-    // mbedtls_ssl_set_bio(&ssl_client->ssl_ctx, ssl_client->client, gsm_mbedtls_net_send, gsm_mbedtls_net_recv, NULL);
+    mbedtls_ssl_set_bio(&ssl_client->ssl_ctx, &ssl_client->client, gsm_mbedtls_net_send, NULL, gsm_mbedtls_net_recv_timeout);
+    // mbedtls_ssl_set_bio(&ssl_client->ssl_ctx, &ssl_client->client, gsm_mbedtls_net_send, gsm_mbedtls_net_recv, NULL);
 
     DBG_PRINT_V("Performing the SSL/TLS handshake...");
 
@@ -321,10 +319,7 @@ void gsm_stop_ssl_socket(gsm_sslclient_context *ssl_client)
 {
     DBG_PRINT_V("Cleaning SSL connection.");
 
-    if (ssl_client->client != NULL) {
-        delete ssl_client->client;
-        ssl_client->client = NULL;
-    }
+    ssl_client->client.stop();
 
 		mbedtls_x509_crt_free(&ssl_client->ca_cert);
 		mbedtls_x509_crt_free(&ssl_client->client_cert);
